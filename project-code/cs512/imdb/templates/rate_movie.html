@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- <link rel="shortcut icon" href="/static/img/favicon.png"> -->
+
+    <title>IMDB+ : Movie Recommendation System</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+
+    <style type="text/css">
+      /* Move down content because we have a fixed navbar that is 50px tall */
+      body {
+        padding-top: 50px;
+        padding-bottom: 20px;
+      }
+      
+      .form-group.required .control-label:after { 
+		   content:"*";
+		   color:red;
+	  }
+	  
+	   .alert {
+	    display: none;
+	   }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="home">IMDB+</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="home">Home</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">User<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="add_user">Add New User</a></li>
+                <li><a href="list_all_users">List All Users</a></li>
+              </ul>
+            </li>
+			
+			<li class="active" class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Movie<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="add_movie">Add New Movie</a></li>
+                <li><a href="">Rate Movie</a></li>
+                <li><a href="list_all_movies">List All Movies</a></li>
+              </ul>
+            </li>
+			<li><a href="get_reco">Recommendation</a></li>
+          </ul>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h3>Rate Movie</h3>
+        <form class="form-horizontal" id="rateMovieForm" role="form">
+	        {% csrf_token %}
+		    {{ form.as_p }}
+			<div class="form-group required">
+				<label class="control-label col-sm-2" for="userid">User:</label>
+				<div class="col-sm-10">
+                    <input type="number" class="form-control" id="userid" name="userid"
+                           required="required" placeholder="e.g 196">
+                </div>
+			</div>
+			<div class="form-group required">
+				<label class="control-label col-sm-2" for="movieid">Movie:</label>
+				<div class="col-sm-10">
+					<input type="number" class="form-control" id="movieid" name="movieid"
+                           required="required" placeholder="e.g 196">
+				</div>
+			</div>
+			<div class="form-group required">
+			  <label class="control-label col-sm-2" for="rating">Rating:</label>
+			  <div class="col-sm-10">		   
+				<input type="number" class="form-control" name="rating"
+						id="rating" placeholder="e.g on scale of 1-5" required="required"
+						min="1" max="5">
+			  </div>
+			</div>
+			<div class="form-group">		
+			  <div class="col-sm-offset-2 col-sm-10">
+				<button type="submit" class="btn btn-success" id="submitBtn"
+						data-toggle="modal" data-target="#confirm-submit">Add / Update Rating &raquo;</button>
+			  </div>
+			</div>
+	  </form>
+	  <div class="alert alert-success alert-dismissable">
+    		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            	Success! Rating successfully added.
+      </div>
+      <div class="alert alert-success alert-dismissable">
+    		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            	Error! Something went wrong. Please try again. 
+      </div>
+    </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/static/js/waitingDialog.js"></script>
+    <script type="text/javascript">
+    
+    	$(function(){
+			$("#rateMovieForm").submit(function(e){
+			    console.log("rateMovieForm submitted")
+				//waitingDialog.show()
+				dataString = $("#rateMovieForm").serialize();
+	 
+				$.ajax({
+					type: "POST",
+					url: "rateMovieController/",
+					data: dataString,
+					dataType: "jsonp",
+					success: function() {
+						//waitingDialog.hide()
+					   console.log('return success')
+					   //$('.alert').show(true)				 
+					},
+					failure: function() {
+					   //	waitingDialog.hide()
+					   console.log('return failure')
+					   //$('.alert').show(true);
+					}
+				}); 
+				return false;        
+		 
+			});
+		});
+
+    </script>
+  </body>
+</html>

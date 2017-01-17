@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- <link rel="shortcut icon" href="/static/img/favicon.png"> -->
+
+    <title>IMDB+ : Movie Recommendation System</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+    <!--<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>-->
+	<!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/r/bs-3.3.5/jq-2.1.4,dt-1.10.8/datatables.min.css"/>-->
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css"/>
+	
+    <style type="text/css">
+      /* Move down content because we have a fixed navbar that is 50px tall */
+      body {
+        padding-top: 50px;
+        padding-bottom: 20px;
+      }
+      
+      .form-group.required .control-label:after { 
+		   content:"*";
+		   color:red;
+	  }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="home">IMDB+</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="home">Home</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">User<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="add_user">Add New User</a></li>
+                <li><a href="list_all_users">List All Users</a></li>
+              </ul>
+            </li>
+			
+			<li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Movie<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="add_movie">Add New Movie</a></li>
+                <li><a href="rate_movie">Rate Movie</a></li>
+                <li><a href="list_all_movies">List All Movies</a></li>
+              </ul>
+            </li>
+			<li class="active"><a href="">Recommendation</a></li>
+          </ul>
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+<!--    <div class="jumbotron"> -->
+      <div class="container">
+      <div class="column">
+      <div class="row-md-4">
+      <br>
+		  <div class="panel panel-default">
+			  <div class="panel-heading">Input:</div>
+			  <div class="panel-body">
+					<form class="form" role="form" id="recoForm">
+						{% csrf_token %}
+					    {{ form.as_p }}
+						<div class="form-group">
+						   <div class="col-sm-6">
+							 <label for="userid" class="sc-only">User:</label>
+							 <input id="userid" class="form-control input-group-lg reg_name" 
+									type="number" name="userid" placeholder="e.g 196" required="required"
+									min="1">
+						   </div>       
+						   <div class="col-sm-6">
+							 <label for="nmovies" class="sc-only">Number of movies:</label>
+							 <input id="nmovies" class="form-control input-group-lg reg_name" 
+									type="number" name="nmovies" placeholder="e.g 10" required="required"
+									min="1">
+						   </div>
+						   <div class="col-sm-6">
+						      <br>
+							  <label class="sc-only" for="recoType">Based on:  </label>
+							  <input type="radio" name="recoType" checked required="required" value="I"> Item based recommendation
+							  <input type="radio" name="recoType" required="required" value="U"> User based recommendation
+						   </div>	
+						   <div class="col-sm-6">
+							 <br>
+							 <button type="submit" id="recommendBtn" class="btn btn-success">Recommend Movies &raquo;</button>
+						   </div>
+						</div><!--/form-group-->
+					</form>
+				</div>
+				</div>
+			</div>
+		  </div>
+		  <div class="panel panel-default">
+			  <div class="panel-heading">Movie recommendations:</div>
+			  <div class="panel-body">
+				<table id="recoTable" class="display" cellspacing="0" width="100%">
+					<thead>
+						<tr>
+							<th>Title</th>
+							<th>Rating</th>
+						</tr>
+					</thead>
+				</table>
+  			  </div>
+		  </div>
+		</div>
+		</div>
+      </div>
+    <!--</div> -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	<!--<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>-->
+	<!--<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script> -->
+    <script src="/static/js/bootstrap.min.js"></script>
+
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js">		
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.10/js/dataTables.bootstrap.min.js">
+	<script type="text/javascript" src="https://cdn.datatables.net/r/bs-3.3.5/jqc-1.11.3,dt-1.10.8/datatables.min.js"></script>
+	<script type="text/javascript" src="/static/js/waitingDialog.js"></script>
+    <script type="text/javascript">
+		
+		var recoJson;
+		    	
+		$(function(){
+			$("#recoForm").submit(function(e){
+				waitingDialog.show()
+			    console.log("recoForm submitted")
+			    e.preventDefault();
+				dataString = $("#recoForm").serialize();
+	 
+				$.ajax({
+					type: "POST",
+					url: "getRecommendations/",
+					data: dataString,
+					dataType: "json",
+					success: handleData
+				});         
+		 
+			});
+		});
+
+		function handleData(data) {
+			waitingDialog.hide()
+			var movieTable = $('#recoTable').DataTable({
+				"data": data,
+				"bDestroy": true,
+				"lengthMenu": [[5, 10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]],
+          		"beforeSend": function(xhr, settings) {
+					console.log("Before Send");
+					$.ajaxSettings.beforeSend(xhr, settings);
+				}
+			});
+		}
+		
+		function getCookie(name) {
+			var cookieValue = null;
+			if (document.cookie && document.cookie != '') {
+				var cookies = document.cookie.split(';');
+				for (var i = 0; i < cookies.length; i++) {
+					var cookie = jQuery.trim(cookies[i]);
+					// Does this cookie string begin with the name we want?
+					if (cookie.substring(0, name.length + 1) == (name + '=')) {
+						cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+						break;
+					}
+				}
+			}
+			return cookieValue;
+		}
+
+		$.ajaxSetup({
+			beforeSend: function(xhr, settings) {
+				if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+					// Only send the token to relative URLs i.e. locally.
+					xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+				}
+			}
+		});
+	</script>
+  </body>
+</html>

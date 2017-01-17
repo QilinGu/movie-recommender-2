@@ -1,0 +1,58 @@
+[{
+	"value": "Unknown",
+	"id": "unknown"
+}, {
+	"value": "Action",
+	"id": "action"
+}, {
+	"value": "Adventure",
+	"id": "adventure"
+}, {
+	"value": "Animation",
+	"id": "animation"
+}, {
+	"value": "Children",
+	"id": "children"
+}, {
+	"value": "Comedy",
+	"id": "comedy"
+}, {
+	"value": "Crime",
+	"id": "crime"
+}, {
+	"value": "Documentary",
+	"id": "documentary"
+}, {
+	"value": "Drama",
+	"id": "drama"
+}, {
+	"value": "Fantasy",
+	"id": "fantasy"
+}, {
+	"value": "Film-Noir",
+	"id": "film_noir"
+}, {
+	"value": "Horror",
+	"id": "horror"
+}, {
+	"value": "Musical",
+	"id": "musical"
+}, {
+	"value": "Mystery",
+	"id": "mystery"
+}, {
+	"value": "Romance",
+	"id": "romance"
+}, {
+	"value": "Sci-Fi",
+	"id": "sci_fi"
+}, {
+	"value": "Thriller",
+	"id": "thriller"
+}, {
+	"value": "War",
+	"id": "war"
+}, {
+	"value": "Western",
+	"id": "western"
+}]
